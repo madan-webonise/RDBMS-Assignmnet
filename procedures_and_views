@@ -1,0 +1,78 @@
+////////////////////////////////////////////////////////////Payments should be in transaction///////////////////////////////////////////////////////////////////////
+
+
+
+DELIMITER $$
+CREATE PROCEDURE insert_payments(IN pay_id INT ,IN pay_order_id INT,IN pay_type varchar(20),IN pay_discount_coupon decimal,IN pay_date DATE, IN pay_status varchar(20),IN pay_created datetime,IN pay_updated timestamp, IN pay_checkout_cost decimal)
+BEGIN  
+DECLARE `rollback` BOOL DEFAULT 0;
+DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+start transaction;
+INSERT INTO payments(id,order_id,payment_type,discount_coupon,payment_date,payment_status,created,updated,checkout_cost) VALUES(pay_id,pay_order_id,pay_type,pay_discount_coupon,pay_date,pay_status,pay_created,pay_updated,pay_checkout_cost); 
+
+IF `rollback` THEN
+    rollback;
+ELSE
+    commit;
+END IF;
+
+END$$
+
+////////////////////////////////////////////////////////////Final_cost////////////////////////////////////////////////////////////////////////
+
+DELIMITER $$
+CREATE PROCEDURE update_final_cost_in_orders()
+BEGIN
+DECLARE user_number INT DEFAULT 0;
+DECLARE counter INTEGER;
+DECLARE new_cost INTEGER;
+SET user_number = 1;
+SET counter = (SELECT COUNT(*) FROM orders);
+WHILE(user_number <=  counter) DO
+    select sum((carts.product_quantity * variants.price)) into new_cost from carts,variants where carts.variant_id = variants.id AND carts.user_id = user_number;
+    UPDATE orders SET orders.final_cost = new_cost where orders.user_id = user_number;
+    SET user_number = user_number + 1;
+END WHILE;
+END;
+$$
+
+
+////////////////////////////////////////////////////////////CHECKOUT_Discount///////////////////////////////////////////////
+
+
+DELIMITER $$
+CREATE PROCEDURE set_checkout_cost()
+BEGIN  
+
+DECLARE checkvalue INT DEFAULT 0;
+DECLARE discount_amount DECIMAL DEFAULT 0;
+DECLARE final_cost_cursor DECIMAL DEFAULT 0;
+DECLARE discount_coupon_cursor DECIMAL DEFAULT 0;
+DECLARE f_finished INT DEFAULT 0;
+
+DECLARE cursor1 CURSOR FOR
+SELECT final_cost from orders;
+DECLARE cursor2 CURSOR FOR
+SELECT discount_coupon from payments;
+
+DECLARE CONTINUE HANDLER
+        FOR NOT FOUND SET f_finished = 1;
+
+
+OPEN cursor1;
+OPEN cursor2;
+SET checkvalue = 1;
+WHILE(checkvalue < (SELECT COUNT(*) FROM payments)) DO
+    FETCH cursor1 INTO final_cost_cursor;
+    FETCH cursor2 INTO discount_coupon_cursor;
+    
+    SET discount_amount = final_cost_cursor - discount_coupon_cursor;
+    
+    UPDATE payments SET checkout_cost = discount_amount where order_id = checkvalue;
+    SET checkvalue = checkvalue +1;
+END WHILE;
+CLOSE cursor1;
+CLOSE cursor2;    
+    
+END$$
+
