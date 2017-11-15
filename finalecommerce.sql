@@ -41,7 +41,6 @@ CREATE TABLE `carts` (
 
 LOCK TABLES `carts` WRITE;
 /*!40000 ALTER TABLE `carts` DISABLE KEYS */;
-INSERT INTO `carts` VALUES (1,1,1,2,1,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(1,6,2,1,1,'2017-11-13 00:00:00','2017-11-14 12:17:59'),(1,5,1,2,1,'2017-11-14 00:00:00','2017-11-14 12:17:59'),(2,2,2,3,4,'2017-11-14 00:00:00','2017-11-13 18:30:00');
 /*!40000 ALTER TABLE `carts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -69,6 +68,7 @@ CREATE TABLE `order_history` (
 
 LOCK TABLES `order_history` WRITE;
 /*!40000 ALTER TABLE `order_history` DISABLE KEYS */;
+INSERT INTO `order_history` VALUES (1,1,1,2,1,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(1,6,2,1,1,'2017-11-13 00:00:00','2017-11-14 12:17:59'),(1,5,1,2,1,'2017-11-14 00:00:00','2017-11-14 12:17:59'),(2,2,2,3,4,'2017-11-14 00:00:00','2017-11-13 18:30:00');
 /*!40000 ALTER TABLE `order_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -129,7 +129,7 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,1,'cash',10,'2017-11-14','Placed','2017-11-14 00:00:00','2017-11-14 15:49:31',250),(2,2,'cash',25,'2017-11-14','paid','2017-11-14 00:00:00','2017-11-14 15:54:46',0);
+INSERT INTO `payments` VALUES (1,1,'cash',20,'2017-11-15','paid','2017-11-15 00:00:00','2017-11-15 06:04:06',240),(2,2,'cash',30,'0000-00-00','paid','2017-11-15 00:00:00','2017-11-14 18:30:00',175);
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -203,7 +203,7 @@ CREATE TABLE `variants` (
   `product_id` int(11) DEFAULT NULL,
   `color_name` varchar(20) DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,
-  `price` decimal(10,2) DEFAULT NULL,
+  `price` decimal(10,0) DEFAULT NULL,
   `created` datetime DEFAULT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -216,9 +216,84 @@ CREATE TABLE `variants` (
 
 LOCK TABLES `variants` WRITE;
 /*!40000 ALTER TABLE `variants` DISABLE KEYS */;
-INSERT INTO `variants` VALUES (1,1,'BLACK',3,50.24,'2017-11-13 00:00:00','2017-11-13 14:08:00'),(2,2,'RED',4,58.32,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(3,3,'BROWN',8,75.32,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(4,4,'BLUE',5,68.32,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(5,1,'GREY',5,52.25,'2017-11-14 00:00:00','2017-11-13 18:30:00'),(6,2,'BLACK',4,55.25,'2017-11-14 00:00:00','2017-11-13 18:30:00');
+INSERT INTO `variants` VALUES (1,1,'BLACK',3,50,'2017-11-13 00:00:00','2017-11-13 14:08:00'),(2,2,'RED',4,58,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(3,3,'BROWN',8,75,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(4,4,'BLUE',5,68,'2017-11-13 00:00:00','2017-11-12 18:30:00'),(5,1,'GREY',5,52,'2017-11-14 00:00:00','2017-11-13 18:30:00'),(6,2,'BLACK',4,55,'2017-11-14 00:00:00','2017-11-13 18:30:00');
 /*!40000 ALTER TABLE `variants` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary table structure for view `view_monthly_report`
+--
+
+DROP TABLE IF EXISTS `view_monthly_report`;
+/*!50001 DROP VIEW IF EXISTS `view_monthly_report`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `view_monthly_report` (
+  `order_id` tinyint NOT NULL,
+  `Order Date` tinyint NOT NULL,
+  `Product names` tinyint NOT NULL,
+  `cost of ecah product` tinyint NOT NULL,
+  `total cost of order` tinyint NOT NULL,
+  `user name` tinyint NOT NULL,
+  `email` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `view_orderdetails_productssold`
+--
+
+DROP TABLE IF EXISTS `view_orderdetails_productssold`;
+/*!50001 DROP VIEW IF EXISTS `view_orderdetails_productssold`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `view_orderdetails_productssold` (
+  `Oredr Id` tinyint NOT NULL,
+  `Order Total` tinyint NOT NULL,
+  `Date` tinyint NOT NULL,
+  `Discount` tinyint NOT NULL,
+  `Payment method` tinyint NOT NULL,
+  `Payment status` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `view_monthly_report`
+--
+
+/*!50001 DROP TABLE IF EXISTS `view_monthly_report`*/;
+/*!50001 DROP VIEW IF EXISTS `view_monthly_report`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_monthly_report` AS select `o`.`id` AS `order_id`,`o`.`order_date` AS `Order Date`,`p`.`product_name` AS `Product names`,`v`.`price` AS `cost of ecah product`,`pay`.`checkout_cost` AS `total cost of order`,`u`.`username` AS `user name`,`u`.`email` AS `email` from (((((`orders` `o` join `products` `p`) join `variants` `v`) join `payments` `pay`) join `users` `u`) join `order_history` `oh`) where ((`oh`.`user_id` = `u`.`id`) and (`oh`.`variant_id` = `v`.`id`) and (`oh`.`product_id` = `p`.`id`) and (`oh`.`order_id` = `o`.`id`) and (`oh`.`order_id` = `pay`.`order_id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `view_orderdetails_productssold`
+--
+
+/*!50001 DROP TABLE IF EXISTS `view_orderdetails_productssold`*/;
+/*!50001 DROP VIEW IF EXISTS `view_orderdetails_productssold`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_orderdetails_productssold` AS select `o`.`id` AS `Oredr Id`,`o`.`final_cost` AS `Order Total`,`o`.`order_date` AS `Date`,`p`.`discount_coupon` AS `Discount`,`p`.`payment_type` AS `Payment method`,`p`.`payment_status` AS `Payment status` from (`orders` `o` join `payments` `p`) where (`o`.`id` = `p`.`order_id`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -229,4 +304,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-14 21:27:27
+-- Dump completed on 2017-11-15 11:49:58

@@ -44,7 +44,7 @@ DELIMITER $$
 CREATE PROCEDURE set_checkout_cost()
 BEGIN  
 
-DECLARE checkvalue INT DEFAULT 0;
+DECLARE checkvalue INT DEFAULT 1;
 DECLARE discount_amount DECIMAL DEFAULT 0;
 DECLARE final_cost_cursor DECIMAL DEFAULT 0;
 DECLARE discount_coupon_cursor DECIMAL DEFAULT 0;
@@ -61,7 +61,6 @@ DECLARE CONTINUE HANDLER
 
 OPEN cursor1;
 OPEN cursor2;
-SET checkvalue = 1;
 WHILE(checkvalue < (SELECT COUNT(*) FROM payments)) DO
     FETCH cursor1 INTO final_cost_cursor;
     FETCH cursor2 INTO discount_coupon_cursor;
@@ -75,4 +74,26 @@ CLOSE cursor1;
 CLOSE cursor2;    
     
 END$$
+
+
+/////////////////////////entry into order_history//////////////////
+DELIMITER $$
+CREATE PROCEDURE cart_to_order_history()
+BEGIN
+    INSERT INTO order_history
+    SELECT * FROM carts;
+    TRUNCATE TABLE carts;    
+END$$
+
+///////////////////////////////////View 1//////////////////////////////////
+
+CREATE VIEW view_orderdetails_productssold as select o.id as 'Oredr Id',o.final_cost as 'Order Total',o.order_date as 'Date',p.discount_coupon as 'Discount',p.payment_type as 'Payment method',p.payment_status as 'Payment status' FROM orders o, payments p where o.id=p.order_id;
+
+///////////////////////////////View2///////////////////////////////////////
+
+
+
+CREATE VIEW view_monthly_report AS SELECT o.id as order_id,o.order_date as 'Order Date',p.product_name as 'Product names',v.price as 'cost of ecah product',pay.checkout_cost as 'total cost of order',u.username as 'user name',u.email as 'email' FROM orders o, products p, variants v, payments pay, users u, order_history oh WHERE oh.user_id=u.id AND oh.variant_id=v.id AND oh.product_id=p.id AND oh.order_id=o.id AND oh.order_id=pay.order_id;
+
+
 
