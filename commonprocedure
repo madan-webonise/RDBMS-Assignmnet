@@ -1,0 +1,59 @@
+drop procedure checkout;
+DELIMITER $$
+CREATE PROCEDURE checkout(IN userr_id INT)
+BEGIN  
+
+DECLARE f DECIMAL DEFAULT 0;
+DECLARE d DECIMAL DEFAULT 20;
+DECLARE calculated_amount DECIMAL DEFAULT 0;
+DECLARE new_cost DECIMAL DEFAULT 0;
+DECLARE p_id INT DEFAULT 1;
+DECLARE o_id INT;
+DECLARE f_finished INT DEFAULT 0;
+DECLARE c_variantid,c_productquantity,c_user_id INT;
+DECLARE oh_variantid,oh_productid,oh_productquantity,oh_orderid INT;
+
+DECLARE cursor1 CURSOR FOR
+    SELECT  user_id, variant_id,product_quantity  from carts where user_id = userr_id;
+DECLARE CONTINUE HANDLER
+        FOR NOT FOUND SET f_finished = true;
+        
+    start transaction;
+    OPEN cursor1;
+    itr_loop : loop
+    FETCH cursor1 INTO c_user_id,c_variantid,c_productquantity;
+           
+            select sum((c_productquantity * variants.price)) into new_cost from carts,variants where c_variantid = variants.id AND carts.user_id = userr_id;
+            select new_cost;
+                        
+    if f_finished then
+    leave itr_loop;
+    end if;       
+    end loop; 
+    CLOSE cursor1;   
+    
+   
+    UPDATE orders SET final_cost = new_cost where user_id = userr_id;
+    select final_cost into f from orders where user_id = userr_id order by id desc limit 1;
+
+    SET calculated_amount = f - d;
+    select f,d ;
+            
+    select id into oh_orderid from orders where user_id = userr_id order by id desc limit 1; 
+    select oh_orderid;
+            
+            INSERT INTO payments(id,order_id,payment_type,discount_coupon,payment_date,payment_status,created,updated,checkout_cost) VALUES      (p_id,oh_orderid,'cash',d,CURDate(),'paid',CURDate(),now(),calculated_amount); 
+set p_id = p_id +1;
+
+update variants inner join carts on variants.id=carts.variant_id set variants.stock=variants.stock - carts.product_quantity where variants.id = carts.variant_id;
+
+INSERT into order_history 
+SELECT * from carts where user_id = userr_id;
+DELETE from carts where user_id = userr_id;
+
+
+commit;
+END$$
+DELIMITER ;
+
+
